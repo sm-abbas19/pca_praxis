@@ -1,88 +1,49 @@
-🛡️ PCA-Praxis: Secure CLI Agent
-PCA-Praxis is a local AI agent designed to bridge the gap between Natural Language and the Command Line Interface (CLI). Unlike standard AI coding assistants, PCA-Praxis prioritizes system security via a "Defense-in-Depth" architecture.
+# 🛡️ PCA-Praxis: Secure CLI Agent
 
-It translates user intent (e.g., "Find all text files created yesterday") into safe Bash commands using a local LLM, verifies them against a strict policy, and executes them inside an isolated Docker Sandbox.
+**PCA-Praxis** is a secure, on-premise Natural Language to Shell (NL2SH) agent designed to bridge the gap between human intent and the command line. Unlike standard AI coding assistants, PCA-Praxis prioritizes **system security** via a "Defense-in-Depth" architecture.
 
-🚀 Key Features
-🔒 Blast Containment: All commands run inside ephemeral Alpine Linux Docker containers. The container is destroyed immediately after execution, preventing persistent threats.
+It translates natural language requests (e.g., *"Find all text files created yesterday"*) into executable Bash commands using a local LLM, validates them against strict security policies, and executes them within an ephemeral **Docker Sandbox**.
 
-🧠 Local Intelligence: Powered by Ollama (Phi-3) running entirely on-premise. No data leaves your machine.
+---
 
-🛡️ Defense-in-Depth:
+## 🚀 Key Features
 
-Input Guardrails: Sanitizes input to prevent prompt injection.
+* **🔒 Blast Containment:** Execution occurs inside isolated, ephemeral Alpine Linux containers. [cite_start]The container is destroyed immediately after the command finishes, preventing persistent threats[cite: 73, 146].
+* **🧠 Local Intelligence:** Powered entirely by **Ollama (Phi-3)** running on-premise. [cite_start]No data leaves the local machine, ensuring privacy[cite: 100].
+* **🛡️ Defense-in-Depth:**
+    * [cite_start]**Input Guardrails:** Sanitizes user input to prevent prompt injection attacks[cite: 113].
+    * [cite_start]**Policy Enforcement:** A "Default-Deny" allowlist blocks dangerous tools (like `rm`, `wget`, `chmod`) by default[cite: 72].
+* [cite_start]**👁️ Human-in-the-Loop:** No command is executed without explicit user authorization[cite: 140].
+* **📂 Dynamic Binding:** Automatically mounts user-selected directories into the sandbox, balancing isolation with productivity.
+* **📝 Context Awareness:** Maintains short-term memory of the conversation, allowing references to previous files (e.g., *"Delete **that** file"*).
 
-Policy Enforcement: A "Default-Deny" allowlist blocks dangerous tools (like rm, wget, chmod) by default.
+## 🛠️ Technology Stack
 
-Force Execute: "Risky" commands require explicit user override via a specialized UI flow.
+* **Interface:** Streamlit (Python)
+* **Orchestration:** Python 3.10+
+* **LLM Backend:** Ollama (Phi-3 Mini)
+* **Sandboxing:** Docker Engine + Docker SDK for Python
+* **Native GUI:** Tkinter (for secure directory selection)
 
-👁️ Human-in-the-Loop: No command runs without user verification.
+## ⚙️ System Architecture
 
-📂 Smart Binding: Dynamically mounts user-selected folders into the sandbox, balancing isolation with productivity.
+[cite_start]The system follows a strict sequential pipeline to ensure safety[cite: 91]:
 
-🧠 Context Awareness: Remembers previous commands and file references (e.g., "Delete that file").
+1.  **User Input:** Natural language request via Streamlit UI.
+2.  **Sanitization:** Regex filters remove chaining characters (`&`, `;`, `|`).
+3.  **Translation:** Local LLM converts request to Bash.
+4.  **Policy Check:** The command is validated against a strict `ALLOWLIST`.
+5.  **Verification:** User reviews the plan. Risky commands trigger a warning (Force Execute).
+6.  **Execution:** Docker mounts the target directory, runs the command, captures output, and destroys the container.
 
-🛠️ Tech Stack
-Frontend: Streamlit (Python)
+## 📦 Installation & Setup
 
-Backend Logic: Python 3.11
+### Prerequisites
+* **OS:** Linux (Recommended) or Windows with WSL2.
+* **Docker Engine:** Must be installed and running.
+* **Ollama:** Must be installed and running.
 
-LLM Engine: Ollama (Phi-3 Mini)
-
-Sandboxing: Docker Engine + Docker SDK for Python
-
-GUI Tools: Tkinter (for native folder selection)
-
-⚙️ Architecture
-The system follows a strict sequential flow to ensure safety:
-
-User Input: Natural language request via Streamlit UI.
-
-Sanitization: Regex filters remove chaining characters (&, ;, |).
-
-Translation: Local LLM converts request to Bash.
-
-Policy Check: The command is validated against a strict ALLOWLIST.
-
-Verification: User reviews the plan. Risky commands trigger a warning.
-
-Execution: Docker mounts the target directory, runs the command, captures output, and destroys the container.
-
-📦 Installation
-Prerequisites
-Linux (Recommended) or Windows with WSL2
-
-Docker Engine installed and running
-
-Ollama installed (curl -fsSL https://ollama.com/install.sh | sh)
-
-Setup
-Clone the repository
-
-Bash
-
-git clone https://github.com/yourusername/pca-praxis.git
+### 1. Clone the Repository
+```bash
+git clone [https://github.com/yourusername/pca-praxis.git](https://github.com/yourusername/pca-praxis.git)
 cd pca-praxis
-Pull the LLM Model
-
-Bash
-
-ollama pull phi3
-Set up the Python Environment
-
-Bash
-
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-(Note: requirements.txt should include: streamlit, docker, requests)
-
-Run the Agent
-
-Bash
-
-streamlit run app.py
-⚠️ Security Notice
-While this tool uses sandboxing and allowlists, always review commands before execution. The "Force Execute" feature grants the agent permission to modify your files. Use with caution.
-
-Built by [Member A Name] & [Member B Name] for the Theory of Automata & Formal Languages Project.
