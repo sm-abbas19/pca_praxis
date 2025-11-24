@@ -1,3 +1,6 @@
+
+
+
 # 🛡️ PCA-Praxis: Secure CLI Agent
 
 **PCA-Praxis** is a secure, on-premise Natural Language to Shell (NL2SH) agent designed to bridge the gap between human intent and the command line. Unlike standard AI coding assistants, PCA-Praxis prioritizes **system security** via a "Defense-in-Depth" architecture.
@@ -8,12 +11,12 @@ It translates natural language requests (e.g., *"Find all text files created yes
 
 ## 🚀 Key Features
 
-* **🔒 Blast Containment:** Execution occurs inside isolated, ephemeral Alpine Linux containers. [cite_start]The container is destroyed immediately after the command finishes, preventing persistent threats[cite: 73, 146].
-* **🧠 Local Intelligence:** Powered entirely by **Ollama (Phi-3)** running on-premise. [cite_start]No data leaves the local machine, ensuring privacy[cite: 100].
+* **🔒 Blast Containment:** Execution occurs inside isolated, ephemeral Alpine Linux containers. The container is destroyed immediately after the command finishes, preventing persistent threats.
+* **🧠 Local Intelligence:** Powered entirely by **Ollama (Phi-3)** running on-premise. No data leaves the local machine, ensuring privacy.
 * **🛡️ Defense-in-Depth:**
-    * [cite_start]**Input Guardrails:** Sanitizes user input to prevent prompt injection attacks[cite: 113].
-    * [cite_start]**Policy Enforcement:** A "Default-Deny" allowlist blocks dangerous tools (like `rm`, `wget`, `chmod`) by default[cite: 72].
-* [cite_start]**👁️ Human-in-the-Loop:** No command is executed without explicit user authorization[cite: 140].
+    * **Input Guardrails:** Sanitizes user input to prevent prompt injection attacks.
+    * **Policy Enforcement:** A "Default-Deny" allowlist blocks dangerous tools (like `rm`, `wget`, `chmod`) by default.
+* **👁️ Human-in-the-Loop:** No command is executed without explicit user authorization.
 * **📂 Dynamic Binding:** Automatically mounts user-selected directories into the sandbox, balancing isolation with productivity.
 * **📝 Context Awareness:** Maintains short-term memory of the conversation, allowing references to previous files (e.g., *"Delete **that** file"*).
 
@@ -27,7 +30,7 @@ It translates natural language requests (e.g., *"Find all text files created yes
 
 ## ⚙️ System Architecture
 
-[cite_start]The system follows a strict sequential pipeline to ensure safety[cite: 91]:
+The system follows a strict sequential pipeline to ensure safety:
 
 1.  **User Input:** Natural language request via Streamlit UI.
 2.  **Sanitization:** Regex filters remove chaining characters (`&`, `;`, `|`).
@@ -47,3 +50,64 @@ It translates natural language requests (e.g., *"Find all text files created yes
 ```bash
 git clone [https://github.com/yourusername/pca-praxis.git](https://github.com/yourusername/pca-praxis.git)
 cd pca-praxis
+````
+
+### 2\. Set up the Environment
+
+It is recommended to use a virtual environment.
+
+```bash
+# Create and activate virtual environment
+python3 -m venv venv
+source venv/bin/activate  # On Windows use: venv\Scripts\activate
+
+# Install dependencies
+pip install streamlit docker requests
+```
+
+### 3\. Initialize the AI Model
+
+Pull the Phi-3 model using Ollama.
+
+```bash
+ollama pull phi3
+```
+
+### 4\. Configure Docker Permissions (Linux Only)
+
+Ensure your user allows Python to access the Docker Daemon without root.
+
+```bash
+sudo usermod -aG docker $USER
+newgrp docker
+```
+
+## ▶️ Usage
+
+1.  **Start the application:**
+
+    ```bash
+    streamlit run app.py
+    ```
+
+2.  **Access the UI:**
+    Open the URL provided in the terminal (usually `http://localhost:8501`).
+
+3.  **Select a Target Folder:**
+    Use the sidebar to choose which directory the agent can access.
+
+4.  **Enter a Task:**
+    Type your request (e.g., *"List all Python files"*).
+
+5.  **Execute:**
+    Review the proposed command and click **Execute Now**.
+
+## ⚠️ Security Notice
+
+> **Warning:** While PCA-Praxis employs sandboxing and allowlists, always review commands before execution. The "Force Execute" feature grants the agent permission to bypass safety checks. Use with caution.
+
+## 👥 Contributors
+
+Submitted as a Semester Project by smabbas and Hira Sardar for **Theory of Automata & Formal Languages**.
+
+
