@@ -11,7 +11,7 @@ It translates natural language requests (e.g., *"Find all text files created yes
 
 ## 🚀 Key Features
 
-* **🔒 Blast Containment:** Execution occurs inside isolated, ephemeral Alpine Linux containers. The container is destroyed immediately after the command finishes, preventing persistent threats.
+* **🔒 Blast Containment:** Execution occurs inside isolated, Ubuntu Linux containers. The container is destroyed immediately after the command finishes, preventing persistent threats.
 * **🧠 Local Intelligence:** Powered entirely by **Ollama (Phi-3)** running on-premise. No data leaves the local machine, ensuring privacy.
 * **🛡️ Defense-in-Depth:**
     * **Input Guardrails:** Sanitizes user input to prevent prompt injection attacks.
