@@ -3,6 +3,7 @@ import axios from 'axios';
 import './App.css';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const UNSUPPORTED_PLAN = "echo 'Unsupported request: expecting a bash task'";
 
 function App() {
   // --- STATE INITIALIZATION (Load from LocalStorage immediately) ---
@@ -198,7 +199,27 @@ function App() {
         session_id: sessionId,
         user_input: promptText
       });
-      setPlan(response.data.plan);
+      const generatedPlan = response.data.plan || '';
+      const trimmedPlan = generatedPlan.trim();
+
+      if (trimmedPlan === UNSUPPORTED_PLAN) {
+        setPlan(null);
+        setIsRisky(false);
+        setMessage('');
+        setChatHistory(prev => {
+          if (prev.length === 0) return prev;
+          const updated = [...prev];
+          const lastIndex = updated.length - 1;
+          updated[lastIndex] = {
+            ...updated[lastIndex],
+            error: 'This prompt was not recognized as a bash task. Please describe a shell command.'
+          };
+          return updated;
+        });
+        return;
+      }
+
+      setPlan(generatedPlan);
       setIsRisky(!response.data.is_safe);
       setMessage(response.data.message);
       
@@ -249,20 +270,6 @@ function App() {
       axios.post(`${API_BASE_URL}/session/${sessionId}/folder`, { folder_path: path })
         .then(res => res.data.success && setWorkingFolder(res.data.working_folder))
         .catch(() => setError('Failed to change folder.'));
-    }
-  };
-
-  const handleClearMemory = async () => {
-    if (window.confirm('Clear all memory for this session?')) {
-      try {
-        await axios.post(`${API_BASE_URL}/session/${sessionId}/clear`);
-        setChatHistory([]);
-        setPlan(null);
-        setLastResult(null);
-        setError('');
-      } catch (err) {
-        setError('Failed to clear memory.');
-      }
     }
   };
 
@@ -332,22 +339,10 @@ function App() {
               <button className="sidebar-link" onClick={handleFolderChange}>
                 Change Folder
               </button>
-              <button className="sidebar-link danger" onClick={handleClearMemory}>
-                Reset Memory
-              </button>
             </div>
           </div>
         </div>
         
-        <div className="sidebar-footer">
-          <div className="user-profile">
-            <div className="user-avatar">A</div>
-            <div className="user-info">
-              <div className="user-name">Abbas</div>
-              <div className="user-role">Administrator</div>
-            </div>
-          </div>
-        </div>
       </aside>
 
       {/* --- Main Content --- */}
@@ -372,7 +367,7 @@ function App() {
                 <div className="empty-logo-wrapper">
                   <span className="empty-logo">🛡️</span>
                 </div>
-                <div className="empty-greeting">Hello, Abbas</div>
+                <div className="empty-greeting">Hello there</div>
                 <div className="empty-subtext">I can execute secure Bash commands in your sandbox.</div>
                 
                 <div className="suggestions-grid">
@@ -393,7 +388,7 @@ function App() {
             {chatHistory.map((msg, i) => (
               <div key={i} className="message-group">
                 <div className="message-row user-row">
-                  <div className="avatar user">A</div>
+                  <div className="avatar user">👤</div>
                   <div className="message-content user-text">{msg.user_input}</div>
                 </div>
                 
@@ -420,6 +415,17 @@ function App() {
                         <pre>
                           {msg.result === '' ? '✅ Success (Silent execution)' : msg.result}
                         </pre>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {msg.error && (
+                  <div className="message-row ai-row">
+                    <div className="avatar ai">🤖</div>
+                    <div className="message-content">
+                      <div className="alert error" style={{margin:'8px 0 0'}}>
+                        ⚠️ {msg.error}
                       </div>
                     </div>
                   </div>
