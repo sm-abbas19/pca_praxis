@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PCA-Praxis | Secure AI CLI Agent</title>
+    <link rel="stylesheet" href="landing.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="brand">
+            <span class="brand-icon">🛡️</span>
+            <span class="brand-text">PCA-Praxis</span>
+        </div>
+        <div class="nav-links">
+            <a href="#architecture" class="nav-item">Architecture</a>
+            <a href="#security" class="nav-item">Security</a>
+            <a href="#performance" class="nav-item">Performance</a>
+            <a href="https://github.com/sm-abbas19/pca_praxis" target="_blank" class="btn-primary">View GitHub</a>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <header class="hero">
+        <div class="hero-content">
+            <div class="badge">🚀 Powered by Phi-3, Docker & Guardrails</div>
+            <h1 class="hero-title">
+                Secure AI for your<br>
+                <span class="text-gradient">Command Line</span>
+            </h1>
+            <p class="hero-subtitle">
+                A local NL2SH agent that bridges the gap between natural language and the shell. 
+                Built with a "Defense-in-Depth" architecture to prevent AI hallucinations from damaging your system.
+            </p>
+            <div class="hero-actions">
+                <a href="#demo" class="btn-primary large">Watch Demo</a>
+                <a href="https://github.com/sm-abbas19/pca_praxis" class="btn-secondary large">Project Docs</a>
+            </div>
+        </div>
+    </header>
+
+    
+
+    <!-- Architecture Section -->
+    <section id="architecture" class="section bg-darker">
+        <div class="container">
+            <h2 class="section-header">System Architecture</h2>
+            <div class="arch-grid">
+                <div class="arch-step">
+                    <div class="step-number">01</div>
+                    <h3>Frontend (React)</h3>
+                    <p>A modern, terminal-inspired UI that manages session state, chat history, and optimistic updates for a seamless user experience.</p>
+                </div>
+                <div class="arch-step">
+                    <div class="step-number">02</div>
+                    <h3>Orchestrator (Flask)</h3>
+                    <p>The Python backend that steers conversation state, applies natural-language intent heuristics, and only forwards vetted prompts to the LLM engine.</p>
+                </div>
+                <div class="arch-step">
+                    <div class="step-number">03</div>
+                    <h3>Intelligence (Ollama)</h3>
+                    <p>Local inference using Microsoft's <strong>Phi-3 Mini</strong> with strict system prompts that demand single-command Bash output or an explicit refusal.</p>
+                </div>
+                <div class="arch-step">
+                    <div class="step-number">04</div>
+                    <h3>Sandbox (Docker)</h3>
+                    <p>Ephemeral Ubuntu containers created on-demand. Uses <strong>Bind Mounts</strong> to safely access specific working directories.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Security Deep Dive -->
+    <section id="security" class="section">
+        <div class="container">
+            <div class="split-layout">
+                <div class="text-content">
+                    <div class="label-small">Defense-in-Depth</div>
+                    <h2>Engineered for Safety</h2>
+                    <p>We assume the LLM can make mistakes. A refreshed, multi-layered pipeline combines heuristic gating, policy checks, and human approval before any command runs.</p>
+                    
+                    <ul class="feature-list">
+                        <li>
+                            <span class="icon">🚫</span>
+                            <div>
+                                <strong>Intent Heuristics</strong>
+                                <p>Natural-language vetting inspects verbs, objects, and command-style arguments to block prompts like "list provinces of pakistan" before they reach the model.</p>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="icon">📋</span>
+                            <div>
+                                <strong>Strict Policy Enforcement</strong>
+                                <p>The model is instructed to reply with <code>echo 'Unsupported request: expecting a bash task'</code> when no safe single command exists, reinforcing the allowlist.</p>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="icon">👁️</span>
+                            <div>
+                                <strong>Human-in-the-Loop</strong>
+                                <p>No command runs automatically. The user must review the plan and click "Execute", with special warnings for risky actions.</p>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="icon">🧠</span>
+                            <div>
+                                <strong>Consistent UX Feedback</strong>
+                                <p>When a prompt is rejected, the frontend now anchors the warning beside the user message instead of a global banner, clarifying why execution stays disabled.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="visual-content">
+                    <div class="code-preview">
+                        <div class="code-header">llm_engine.py</div>
+<pre><code>def _looks_like_shell_request(text):
+    lowered = text.lower().strip()
+    if not lowered:
+        return False
+
+    tokens = lowered.split()
+    if tokens and tokens[0] in _TASK_VERBS:
+        if len(tokens) == 1:
+            return True
+        remaining = tokens[1:]
+        if any(
+            t in _TASK_OBJECTS
+            or t.startswith('-')
+            or re.search(r"[./\\]", t)
+            or re.search(r"\d", t)
+        for t in remaining):
+            return True
+
+    words = set(re.findall(r"[a-z]+", lowered))
+    return bool(words & _TASK_VERBS and words & _TASK_OBJECTS)</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Performance Engineering -->
+    <section id="performance" class="section bg-darker">
+        <div class="container">
+            <h2 class="section-header">Performance Engineering</h2>
+            <p class="section-sub">Optimizing local LLM inference on consumer hardware (Intel Core i5-1235U).</p>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Adaptive Threads</h3>
+                    <div class="stat-value">Auto (up to 12)</div>
+                    <p>Thread count now derives from <code>os.cpu_count()</code> with optional <code>LLM_NUM_THREADS</code> overrides for hybrid-core tuning.</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Context Window</h3>
+                    <div class="stat-value">3072 Tokens</div>
+                    <p>Default context grew for longer chats and remains configurable through <code>LLM_NUM_CTX</code>.</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Warm Start Clock</h3>
+                    <div class="stat-value">60&nbsp;s Timeout</div>
+                    <p>Requests honor a configurable <code>LLM_REQUEST_TIMEOUT</code> with a five-minute <code>LLM_KEEP_ALIVE</code> to balance responsiveness and resource usage.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="screenshots" class="section bg-darker">
+        <div class="container">
+            <h2 class="section-header">See PCA-Praxis in Action</h2>
+            <p class="section-sub">A glimpse into the secure, terminal-inspired interface.</p>
+            
+            <div class="screenshots-grid">
+                
+                <!-- Card 1: Main Page -->
+                <div class="screenshot-card">
+                    <div class="browser-mockup">
+                        <div class="browser-header">
+                            <span class="dot red"></span>
+                            <span class="dot yellow"></span>
+                            <span class="dot green"></span>
+                        </div>
+                        <!-- Replace 'main_page.png' with your actual image file -->
+                        <img src="welcome.png" alt="PCA-Praxis Main Interface" class="screenshot-img">
+                    </div>
+                    <div class="card-content">
+                        <h3>Clean Interface</h3>
+                        <p>A distraction-free, dark-themed environment focused on your tasks.</p>
+                    </div>
+                </div>
+
+                <!-- Card 2: Successful Execution -->
+                <div class="screenshot-card">
+                    <div class="browser-mockup">
+                        <div class="browser-header">
+                            <span class="dot red"></span>
+                            <span class="dot yellow"></span>
+                            <span class="dot green"></span>
+                        </div>
+                        <!-- Replace 'success_exec.png' with your actual image file -->
+                        <img src="success.png" alt="Successful Command Execution" class="screenshot-img">
+                    </div>
+                    <div class="card-content">
+                        <h3>Verified Execution</h3>
+                        <p>Commands are generated, reviewed, and executed safely in the sandbox.</p>
+                    </div>
+                </div>
+
+                <!-- Card 3: Security Warning -->
+                <div class="screenshot-card">
+                    <div class="browser-mockup">
+                        <div class="browser-header">
+                            <span class="dot red"></span>
+                            <span class="dot yellow"></span>
+                            <span class="dot green"></span>
+                        </div>
+                        <!-- Replace 'warning_msg.png' with your actual image file -->
+                        <img src="warning.png" alt="Security Warning Alert" class="screenshot-img">
+                    </div>
+                    <div class="card-content">
+                        <h3>Active Guardrails</h3>
+                        <p>Dangerous commands trigger immediate warnings, requiring explicit approval.</p>
+                    </div>
+                </div>
+
+                <!-- Card 4: Unsupported Prompt -->
+                <div class="screenshot-card">
+                    <div class="browser-mockup">
+                        <div class="browser-header">
+                            <span class="dot red"></span>
+                            <span class="dot yellow"></span>
+                            <span class="dot green"></span>
+                        </div>
+                        <!-- Replace 'unsupported.png' with your actual image file -->
+                        <img src="unsupported.png" alt="Unsupported Prompt Feedback" class="screenshot-img">
+                    </div>
+                    <div class="card-content">
+                        <h3>Non-Bash Rejection</h3>
+                        <p>When a request is not shell-related, the app surfaces a contextual alert and disables execution automatically.</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Demo Section -->
+    <section id="demo" class="section">
+        <div class="container">
+            <div class="video-wrapper">
+    <iframe 
+        width="560" 
+        height="315" 
+        src="https://www.youtube.com/embed/YOUR_VIDEO_ID_HERE" 
+        title="PCA Praxis Demo" 
+        frameborder="0" 
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+        allowfullscreen>
+    </iframe>
+</div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2025 PCA-Praxis</p>
+    </footer>
+
+    <!-- Image Modal (Lightbox) -->
+    <div id="imageModal" class="modal">
+        <span class="close">&times;</span>
+        <img class="modal-content" id="img01">
+        <div id="caption"></div>
+    </div>
+
+<script>
+(function () {
+    const modal = document.getElementById('imageModal');
+    const modalImg = document.getElementById('img01');
+    const caption = document.getElementById('caption');
+
+    function openImage(src, alt) {
+        modalImg.src = src;
+        caption.textContent = alt || '';
+        // prevent page scroll while modal is open
+        document.body.style.overflow = 'hidden';
+        modal.style.display = 'flex';
+    }
+
+    function closeModal() {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+        // clear image src to release memory if needed
+        modalImg.src = '';
+    }
+
+    // Attach click handlers to each screenshot card
+    document.querySelectorAll('.screenshot-card').forEach(card => {
+        card.style.cursor = 'pointer';
+        card.addEventListener('click', () => {
+            const imgEl = card.querySelector('.screenshot-img');
+            if (!imgEl) return;
+            openImage(imgEl.src, imgEl.alt);
+        });
+    });
+
+    // Close controls
+    const closeBtn = modal.querySelector('.close');
+    if (closeBtn) closeBtn.addEventListener('click', closeModal);
+
+    // Close when clicking outside the image
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+
+    // Close with Escape key
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && getComputedStyle(modal).display !== 'none') {
+            closeModal();
+        }
+    });
+})();
+</script>
+
+</body>
+</html>
